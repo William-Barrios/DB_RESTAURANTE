@@ -69,11 +69,7 @@ int main()
         while (!run) {
             cout << "<---- FOGON & CARBON ---->" << endl;
             cout << "1. SUCURSALES" << endl;
-            cout << "2. COMPROBANTES" << endl;
-            cout << "3. PEDIDOS" << endl;
-            cout << "4. PRODUCTOS" << endl;
-            cout << "5. EMPLEADOS" << endl;
-            cout << "6. SALIR" << endl;
+            cout << "2. SALIR" << endl;
             cout << "SELECCIONAR: ";
             cin >> option;
             system("cls");
@@ -83,7 +79,8 @@ int main()
                     cout << "<--- SUCURSALES --->" << endl;
                     cout << "1. CREAR SUCURSAL" << endl;
                     cout << "2. VER SUCURSAL" << endl;
-                    cout << "3. SALIR" << endl;
+                    cout << "3. ELEGIR SUCURSAL" << endl;
+                    cout << "4. SALIR" << endl;
                     cout << "SELECCIONAR: ";
                     cin >> option;
                     system("cls");
@@ -103,6 +100,8 @@ int main()
                         S.MOSTRAR(conectar);
                         break;
                     case 3:
+                        break;
+                    case 4:
                         run_sucursales = 1;
                         break;
                     }
@@ -110,14 +109,6 @@ int main()
                 run_sucursales = 0;
                 break;
             case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                break;
-            case 6:
                 run = 1;
                 break;
             }
