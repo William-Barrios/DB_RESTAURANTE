@@ -6,6 +6,9 @@ using namespace std;
 
 int q_estado;
 
+string RUC_UNICO;
+bool run_my_sucursal = 1;
+
 class Opcion {
 public:
     void CREAR();
@@ -52,8 +55,10 @@ public:
 
 void INGRESAR_SUCURSAL(MYSQL* conectar, Sucursal& S);
 
-void Inventario_setting(MYSQL* conectar, string& id_sucursal);
+void Inventario_setting(MYSQL* conectar);
 void Inventario_Crear(MYSQL* conectar, string& id_sucursal, Inventario& I);
+
+void Log_in(MYSQL* conectar);
 
 
 int main()
@@ -78,9 +83,8 @@ int main()
                 while (!run_sucursales) {
                     cout << "<--- SUCURSALES --->" << endl;
                     cout << "1. CREAR SUCURSAL" << endl;
-                    cout << "2. VER SUCURSAL" << endl;
-                    cout << "3. ELEGIR SUCURSAL" << endl;
-                    cout << "4. SALIR" << endl;
+                    cout << "2. INGRESAR A SUCURSAL" << endl;
+                    cout << "3. SALIR" << endl;
                     cout << "SELECCIONAR: ";
                     cin >> option;
                     system("cls");
@@ -96,12 +100,51 @@ int main()
                         system("cls");
                         break;
                     case 2:
-                        cout << "<--- SUCURSAL --->" << endl;
-                        S.MOSTRAR(conectar);
+                        Log_in(conectar);
+                        system("cls");
+                        if (!run_my_sucursal) {
+                            while (!run_my_sucursal) {
+                                cout << RUC_UNICO << endl;
+                                cout << "<--- BIENVENIDO --->" << endl;
+                                cout << "1. DATOS SUCURSAL" << endl;
+                                cout << "2. INVENTARIO" << endl;
+                                cout << "3. EMPLEADOS" << endl;
+                                cout << "4. PRODUCTOS" << endl;
+                                cout << "5. COMPROBANTES" << endl;
+                                cout << "6. PEDIDOS" << endl;
+                                cout << "7. SALIR" << endl;
+                                cout << "SELECCIONAR: ";
+                                cin >> option;
+                                system("cls");
+                                switch (option) {
+                                case 1:
+                                    S.MOSTRAR(conectar);
+                                    system("pause");
+                                    system("cls");
+                                    break;
+                                case 2:
+                                    Inventario_setting(conectar);
+                                    break;
+                                case 3:
+                                    break;
+                                case 4:
+                                    break;
+                                case 5:
+                                    break;
+                                case 6:
+                                    break;
+                                case 7:
+                                    run_my_sucursal = 1;
+                                    system("cls");
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            system("cls");
+                        }
                         break;
                     case 3:
-                        break;
-                    case 4:
                         run_sucursales = 1;
                         break;
                     }
@@ -138,10 +181,7 @@ void Sucursal::MOSTRAR(MYSQL* conectar) {
     string consulta;
     const char* c;
     string id_sucursal;
-    string ruc;
-    cout << "Buscar Sucursal por RUC: ";
-    cin >> ruc;
-    consulta = "SELECT * FROM sucursal A, provincia B, distrito C WHERE A.DISTRITO_ID_DISTRITO = C.ID_DISTRITO AND C.PROVINCIA_ID_PROVINCIA = B.ID_PROVINCIA AND A.RUC = '" + ruc + "'";
+    consulta = "SELECT * FROM sucursal A, provincia B, distrito C WHERE A.DISTRITO_ID_DISTRITO = C.ID_DISTRITO AND C.PROVINCIA_ID_PROVINCIA = B.ID_PROVINCIA AND A.RUC = '" + RUC_UNICO + "'";
     c = consulta.c_str();
     q_estado = mysql_query(conectar, c);
     if (!q_estado) {
@@ -154,7 +194,6 @@ void Sucursal::MOSTRAR(MYSQL* conectar) {
         cout << "DISTRITO: " << fila[8] << endl;
         cout << "PROVINCIA: " << fila[6] << endl;
     }
-    Inventario_setting(conectar, id_sucursal);
 }
 
 Provincia::Provincia() {
@@ -351,12 +390,25 @@ void INGRESAR_SUCURSAL(MYSQL* conectar, Sucursal& S) {
     S.CREAR(conectar);
 }
 
-void Inventario_setting(MYSQL* conectar, string& id_sucursal) {
+void Inventario_setting(MYSQL* conectar) {
     MYSQL_ROW fila;
     MYSQL_RES* resultado;
     string consulta;
+    string id_sucursal;
     Inventario I;
     const char* c;
+    consulta = "SELECT * FROM sucursal";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (fila = mysql_fetch_row(resultado)) {
+            if (RUC_UNICO == fila[1]) {
+                id_sucursal = fila[0];
+            }
+        }
+
+    }
     consulta = "SELECT * FROM inventario WHERE SUCURSAL_RUC ='" + id_sucursal + "'";
     c = consulta.c_str();
     q_estado = mysql_query(conectar, c);
@@ -411,4 +463,40 @@ void Inventario_Crear(MYSQL* conectar, string& id_sucursal, Inventario& I) {
     I.ESTADO = ESTADO;
     I.SUCURSAL = SUCURSAL;
     I.CREAR(conectar);
+}
+
+void Log_in(MYSQL* conectar) {
+    MYSQL_ROW fila;
+    MYSQL_RES* resultado;
+    string consulta;
+    Inventario I;
+    const char* c;
+    string number;
+    consulta = "SELECT * FROM sucursal";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (fila = mysql_fetch_row(resultado)) {
+            cout << fila[0] << " | " << fila[1] << endl;
+        }
+        cout << "ESCOGER SUCURSAL: ";
+        cin >> number;
+        consulta = "SELECT * FROM sucursal WHERE ID_SUCURSAL = '"+ number +"'";
+        c = consulta.c_str();
+        q_estado = mysql_query(conectar, c);
+        if (!q_estado) {
+            resultado = mysql_store_result(conectar);
+            while (fila = mysql_fetch_row(resultado)) {
+                RUC_UNICO = fila[1];
+                run_my_sucursal = 0;
+            }
+        }
+        else {
+            return;
+        }
+    }
+    else {
+        return;
+    }
 }
