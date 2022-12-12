@@ -1,6 +1,8 @@
 ﻿  BASE_DE_DATOS.cpp
+C:\Users\Mauricio David\Desktop\DB_RESTAURANTE\BASE_DE_DATOS\BASE_DE_DATOS.cpp(682,16): warning C4101: 'resultado': variable local sin referencia
+C:\Users\Mauricio David\Desktop\DB_RESTAURANTE\BASE_DE_DATOS\BASE_DE_DATOS.cpp(681,15): warning C4101: 'fila': variable local sin referencia
   Generando código
-  2 of 175 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
+  2 of 182 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada

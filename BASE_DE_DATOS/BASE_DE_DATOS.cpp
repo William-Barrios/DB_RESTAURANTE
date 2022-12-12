@@ -53,6 +53,32 @@ public:
     void MOSTRAR(MYSQL* conectar, string& id_sucursal);
 };
 
+class ProSur : public Opcion {
+public:
+    string ID_SUCURSAL;
+    string ID_PRODUCTO;
+    ProSur();
+    void CREAR(MYSQL* conectar, string id_producto);
+};
+
+class Producto : public Opcion {
+public:
+    string PRECIO;
+    string TIPO;
+    string PROVEEDOR_ID;
+    Producto();
+    void CREAR(MYSQL* conectar);
+    void MOSTRAR(MYSQL* conectar);
+};
+
+class Proveedor : public Opcion {
+public:
+    string TELEFONO;
+    string DIRECCION;
+    Proveedor();
+    void CREAR(MYSQL* conectar);
+};
+
 void INGRESAR_SUCURSAL(MYSQL* conectar, Sucursal& S);
 
 void Inventario_setting(MYSQL* conectar);
@@ -70,7 +96,9 @@ int main()
         bool run = 0;
         bool run_sucursales = 0;
         int option;
+        bool running = 0;
         Sucursal S;
+        Producto PD;
         while (!run) {
             cout << "<---- FOGON & CARBON ---->" << endl;
             cout << "1. SUCURSALES" << endl;
@@ -104,7 +132,6 @@ int main()
                         system("cls");
                         if (!run_my_sucursal) {
                             while (!run_my_sucursal) {
-                                cout << RUC_UNICO << endl;
                                 cout << "<--- BIENVENIDO --->" << endl;
                                 cout << "1. DATOS SUCURSAL" << endl;
                                 cout << "2. INVENTARIO" << endl;
@@ -126,8 +153,32 @@ int main()
                                     Inventario_setting(conectar);
                                     break;
                                 case 3:
+                                    
                                     break;
                                 case 4:
+                                    while (!running) {
+                                        cout << "<--- PRODUCTOS --->" << endl;
+                                        cout << "1. CREAR NUEVO PRODUCTO" << endl;
+                                        cout << "2. VER PRODUCTOS" << endl;
+                                        cout << "3. SALIR" << endl;
+                                        cout << "SELECCIONAR: ";
+                                        cin >> option;
+                                        system("cls");
+                                        switch (option) {
+                                        case 1:
+                                            PD.CREAR(conectar);
+                                            break;
+                                        case 2:
+                                            PD.MOSTRAR(conectar);
+                                            system("pause");
+                                            break;
+                                        case 3:
+                                            running = 1;
+                                            break;
+                                        }
+                                        system("cls");
+                                    }
+                                    system("cls");
                                     break;
                                 case 5:
                                     break;
@@ -499,4 +550,142 @@ void Log_in(MYSQL* conectar) {
     else {
         return;
     }
+}
+
+ProSur::ProSur() {
+    ID_SUCURSAL = " ";
+    ID_PRODUCTO = " ";
+}
+
+void ProSur::CREAR(MYSQL* conectar, string id_producto) {
+    MYSQL_ROW fila;
+    MYSQL_RES* resultado;
+    string consulta;
+    string id_sucursal;
+    const char* c;
+    consulta = "SELECT * FROM sucursal WHERE ruc = '"+ RUC_UNICO +"'";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (fila = mysql_fetch_row(resultado)) {
+            id_sucursal = fila[0];
+        }
+    }
+    string insert = "insert into sucursal_has_producto(SUCURSAL_RUC, PRODUCTO_ID_PRODUCTO) values('" + id_sucursal + "', '" + id_producto + "')";
+    const char* i = insert.c_str();
+    q_estado = mysql_query(conectar, i);
+}
+
+Producto::Producto() {
+    PRECIO = " ";
+    TIPO = " ";
+    PROVEEDOR_ID = " ";
+}
+
+void Producto::CREAR(MYSQL* conectar) {
+    MYSQL_ROW fila;
+    MYSQL_RES* resultado;
+    string consulta;
+    string id_proveedor;
+    ProSur PS;
+    Proveedor Pv;
+    int option;
+    bool running = 0;
+    const char* c;
+    consulta = "SELECT * FROM proveedor";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (!running) {
+            while (fila = mysql_fetch_row(resultado)) {
+                cout << fila[0] << " | " << fila[2] << endl;
+            }
+            cout << "1. Elegir de lista" << endl;
+            cout << "2. Crear Proveedor " << endl;
+            cout << "3. Salir " << endl;
+            cout << "Escoger: ";
+            cin >> option;
+            switch (option) {
+            case 1:
+                cout << "Elegir Direccion de Proveedor:";
+                cin >> id_proveedor;
+                running = 1;
+                system("cls");
+                break;
+            case 2:
+                system("cls");
+                cout << "<-----CREAR PROVEEDOR----->" << endl;
+                Pv.CREAR(conectar);
+                consulta = "SELECT * FROM proveedor";
+                c = consulta.c_str();
+                q_estado = mysql_query(conectar, c);
+                if (!q_estado) {
+                    resultado = mysql_store_result(conectar);
+                    while (fila = mysql_fetch_row(resultado)) {
+                        id_proveedor = fila[0];
+                    }
+                }
+                running = 1;
+                system("cls");
+                break;
+            case 3:
+                return;
+            }
+        }
+    }
+    cout << "Ingresar Precio: ";
+    cin >> PRECIO;
+    cout << "Ingresar Tipo de Producto: ";
+    cin >> TIPO;
+    string insert = "insert into producto(PRECIO, TIPO, PROVEEDOR_ID_PROVEEDOR) values('" + PRECIO + "', '" + TIPO + "', '" + id_proveedor + "')";
+    const char* i = insert.c_str();
+    q_estado = mysql_query(conectar, i);
+    consulta = "SELECT LAST_INSERT_ID()";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (fila = mysql_fetch_row(resultado)) {
+            PS.CREAR(conectar, fila[0]);
+        }
+
+    }
+}
+
+void Producto::MOSTRAR(MYSQL* conectar) {
+    MYSQL_ROW fila;
+    MYSQL_RES* resultado;
+    string consulta;
+    const char* c;
+    consulta = "SELECT * FROM producto";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (fila = mysql_fetch_row(resultado)) {
+            cout << "PRECIO: " << "s/." << fila[1] << endl;
+            cout << "TIPO: " << fila[2] << endl;
+            cout << "------------------------------" << endl;
+        }
+    }
+}
+
+Proveedor::Proveedor() {
+    TELEFONO = " ";
+    DIRECCION = " ";
+}
+
+void Proveedor::CREAR(MYSQL* conectar) {
+    MYSQL_ROW fila;
+    MYSQL_RES* resultado;
+    string consulta;
+    cout << "Ingresar Telefono: ";
+    cin >> TELEFONO;
+    cout << "Ingresar Direccion: ";
+    cin >> DIRECCION;
+    string insert = "insert into proveedor(TELEFONO, DIRECCION) values('" + TELEFONO + "', '" + DIRECCION + "')";
+    const char* i = insert.c_str();
+    q_estado = mysql_query(conectar, i);
 }
