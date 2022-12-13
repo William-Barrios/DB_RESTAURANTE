@@ -343,6 +343,7 @@ int main()
                                         }
                                         system("cls");
                                     }
+                                    running = 0;
                                     system("cls");
                                     break;
                                 case 5:
@@ -1501,7 +1502,7 @@ void Comprobante::MOSTRAR(MYSQL* conectar, string& id_sucursal) {
     }
 
 
-    consulta = "select*, sum(cantidad * PRECIO) from default_schema.producto_has_dtlle_pdido as x inner join(SELECT comprobante.fecha, comprobante.nombre, comprobante.direccion, comprobante.FRMA_D_PGO, comprobante.PEDIDO_ID_PEDIDO, ID_DTLLE_PDIDO FROM default_schema.comprobante inner join default_schema.dtlle_pdido on comprobante.pedido_id_pedido = dtlle_pdido.pedido_id_pedido where sucursal_ruc = '" + id_sucursal + "') as y on x.dtlle_pdido_id_dtlle_pdido = y.id_dtlle_pdido inner join default_schema.producto as q on PRODUCTO_ID_PRODUCTO = q.ID_PRODUCTO where pedido_id_pedido in(select comprobante.PEDIDO_ID_PEDIDO from default_schema.comprobante) group by(id_dtlle_pdido)";
+    consulta = " select * , sum(cantidad * PRECIO) from default_schema.producto_has_dtlle_pdido as x inner join(SELECT comprobante.fecha, comprobante.nombre, comprobante.direccion, comprobante.FRMA_D_PGO, comprobante.PEDIDO_ID_PEDIDO, ID_DTLLE_PDIDO, ID_COMPROBANTE FROM default_schema.comprobante inner join default_schema.dtlle_pdido on comprobante.pedido_id_pedido = dtlle_pdido.pedido_id_pedido where sucursal_ruc = '" + id_sucursal + "') as y on x.dtlle_pdido_id_dtlle_pdido = y.id_dtlle_pdido inner join default_schema.producto as q on PRODUCTO_ID_PRODUCTO = q.ID_PRODUCTO where pedido_id_pedido in(select comprobante.PEDIDO_ID_PEDIDO from default_schema.comprobante) group by(comprobante.id_comprobante)";
     c = consulta.c_str();
     q_estado = mysql_query(conectar, c);
     if (!q_estado) {
@@ -1512,7 +1513,7 @@ void Comprobante::MOSTRAR(MYSQL* conectar, string& id_sucursal) {
             cout << "DIRECCION: " << fila[6] << endl;
             cout << "FORMA DE PAGO: " << fila[7] << endl;
             cout << "ID_PEDIDO: " << fila[8] << endl;
-            cout << "TOTAL: " << fila[14] << endl;
+            cout << "TOTAL: " << fila[15] << endl;
             cout << "------------------------------" << endl;
         }
     }
