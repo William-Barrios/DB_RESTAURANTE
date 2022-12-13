@@ -221,6 +221,8 @@ void Log_in(MYSQL* conectar);
 void INGRESAR_PERSONAL(MYSQL* conectar);
 void INGRESAR_PEDIDO(MYSQL* conectar, Pedido& P);
 
+void MOSTRAR_PRODUCTOS_BY_PROVEEDOR(MYSQL* conectar);
+
 int main()
 {
     MYSQL* conectar;
@@ -325,7 +327,8 @@ int main()
                                         cout << "<--- PRODUCTOS --->" << endl;
                                         cout << "1. CREAR NUEVO PRODUCTO" << endl;
                                         cout << "2. VER PRODUCTOS" << endl;
-                                        cout << "3. SALIR" << endl;
+                                        cout << "3. PRODUCTO POR PROVEEDOR" << endl;
+                                        cout << "4. SALIR" << endl;
                                         cout << "SELECCIONAR: ";
                                         cin >> option;
                                         system("cls");
@@ -338,6 +341,10 @@ int main()
                                             system("pause");
                                             break;
                                         case 3:
+                                            MOSTRAR_PRODUCTOS_BY_PROVEEDOR(conectar);
+                                            system("pause");
+                                            break;
+                                        case 4:
                                             running = 1;
                                             break;
                                         }
@@ -1915,4 +1922,43 @@ void Mesero_Turno::CREAR(MYSQL* conectar) {
     else {
         cout << "Ingreso Fallido..." << endl;
     }
+}
+
+void MOSTRAR_PRODUCTOS_BY_PROVEEDOR(MYSQL* conectar) {
+    MYSQL_ROW fila;
+    MYSQL_ROW fila2;
+    MYSQL_RES* resultado;
+    MYSQL_RES* resultado2;
+    string id_provee;
+    string consulta;
+    string consulta2;
+    const char* c;
+    const char* c2;
+    consulta = "SELECT distinct ID_PROVEEDOR FROM default_schema.producto as x inner join default_schema.proveedor as y on x.PROVEEDOR_ID_PROVEEDOR = y.id_proveedor";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (fila = mysql_fetch_row(resultado)) {
+            cout << "------------------------------" << endl;
+            id_provee = fila[0];
+            cout << "ID PROVEEDOR: " << fila[0] << endl;
+            cout << endl;
+            cout << endl;
+            consulta2 = "SELECT * FROM default_schema.producto as x inner join default_schema.proveedor as y on x.PROVEEDOR_ID_PROVEEDOR = y.id_proveedor where id_proveedor = '" + id_provee + "'";
+            c2 = consulta2.c_str();
+            q_estado = mysql_query(conectar, c2);
+            if (!q_estado) {
+                resultado2 = mysql_store_result(conectar);
+                while (fila2 = mysql_fetch_row(resultado2)) {
+                    cout << "PRODUCTO: " << fila2[2] << endl;
+                    cout << "PRECIO: " << "s/." << fila2[1] << endl;
+                    cout << endl;
+                }
+            }
+
+
+        }
+    }
+
 }
