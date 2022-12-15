@@ -1018,6 +1018,7 @@ void Datos_Personal::MOSTRAR(MYSQL* conectar) {
     }
     string trabajo = "administrador";
     cout << "-------TRABAJO-------" << endl;
+    //OSCAR 2 TABLAS: DATO_PERSONAL, COCINERO.
     consulta1 = "SELECT * FROM dto_prsnal INNER JOIN cocinero on dto_prsnal.ID_DTO_PRSNAL=cocinero.DTO_PRSNAL_ID_DTO_PRSNAL WHERE dto_prsnal.ID_DTO_PRSNAL = '" + id_datos + "'";
     c = consulta1.c_str();
     q_estado = mysql_query(conectar, c);
@@ -1064,6 +1065,7 @@ void Datos_Personal::MOSTRAR(MYSQL* conectar) {
 
 
     }
+    //OSCAR 3 TABLAS: DATO PERSONAL, MESERO, MESERO_HAS_TURNO, TURNO.
     consulta4 = "SELECT * FROM dto_prsnal INNER JOIN mesero on dto_prsnal.ID_DTO_PRSNAL=mesero.DTO_PRSNAL_ID_DTO_PRSNAL INNER JOIN mesero_has_turno on mesero.ID_MESERO = mesero_has_turno.MESERO_ID_MESERO INNER JOIN turno on mesero_has_turno.TURNO_ID_TURNO = turno.ID_TURNO WHERE dto_prsnal.ID_DTO_PRSNAL = '" + id_datos + "'";
     c = consulta4.c_str();
     q_estado = mysql_query(conectar, c);
@@ -1083,6 +1085,7 @@ void Datos_Personal::MOSTRAR(MYSQL* conectar) {
     }
 
 }
+//OSCAR
 
 Administrador::Administrador(string DTO_PRSNAL_, string SUCURSAL_) {
     DTO_PRSNAL = DTO_PRSNAL_;
@@ -1508,7 +1511,7 @@ void Comprobante::MOSTRAR(MYSQL* conectar, string& id_sucursal) {
         }
     }
 
-
+    //WILLIAM 3 TABLAS: PRODUCTO, PRODUCTO_HAS_DETALLE_PEDIDO, COMPROBANTE.
     consulta = " select * , sum(cantidad * PRECIO) from default_schema.producto_has_dtlle_pdido as x inner join(SELECT comprobante.fecha, comprobante.nombre, comprobante.direccion, comprobante.FRMA_D_PGO, comprobante.PEDIDO_ID_PEDIDO, ID_DTLLE_PDIDO, ID_COMPROBANTE FROM default_schema.comprobante inner join default_schema.dtlle_pdido on comprobante.pedido_id_pedido = dtlle_pdido.pedido_id_pedido where sucursal_ruc = '" + id_sucursal + "') as y on x.dtlle_pdido_id_dtlle_pdido = y.id_dtlle_pdido inner join default_schema.producto as q on PRODUCTO_ID_PRODUCTO = q.ID_PRODUCTO where pedido_id_pedido in(select comprobante.PEDIDO_ID_PEDIDO from default_schema.comprobante) group by(comprobante.id_comprobante)";
     c = consulta.c_str();
     q_estado = mysql_query(conectar, c);
@@ -1525,8 +1528,9 @@ void Comprobante::MOSTRAR(MYSQL* conectar, string& id_sucursal) {
         }
     }
 }
+//WILLIAM
 
-void Pedido::MOSTRAR(MYSQL* conectar) {
+void Pedido::MOSTRAR(MYSQL* conectar) { 
     MYSQL_ROW fila;
     MYSQL_ROW fila2;
     MYSQL_RES* resultado;
@@ -1545,6 +1549,7 @@ void Pedido::MOSTRAR(MYSQL* conectar) {
             cout << "------------------------------" << endl;
             id_ped = fila[0];
             cout << "ID PEDIDO: " << fila[0] << endl;
+            //WILLIAM 2 TABLAS: PRODUCTO_HAS_DETALLE_PEDIDO, DETALLE_PEDIDO.
             consulta2 = "SELECT * FROM default_schema.dtlle_pdido inner join default_schema.producto_has_dtlle_pdido on dtlle_pdido.ID_DTLLE_PDIDO = producto_has_dtlle_pdido.dtlle_pdido_id_dtlle_pdido inner join default_schema.producto on PRODUCTO_ID_PRODUCTO = ID_PRODUCTO where PEDIDO_ID_PEDIDO = '" + id_ped + "'";
             c2 = consulta2.c_str();
             q_estado = mysql_query(conectar, c2);
@@ -1564,6 +1569,7 @@ void Pedido::MOSTRAR(MYSQL* conectar) {
     }
 
 }
+//WILLIAM
 
 void INGRESAR_PEDIDO(MYSQL* conectar, Pedido& P) {
     MYSQL_ROW fila;
