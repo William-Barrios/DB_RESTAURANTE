@@ -221,6 +221,8 @@ void Log_in(MYSQL* conectar);
 void INGRESAR_PERSONAL(MYSQL* conectar);
 void INGRESAR_PEDIDO(MYSQL* conectar, Pedido& P);
 
+void MOSTRAR_PRODUCTOS_BY_PROVEEDOR(MYSQL* conectar);
+
 int main()
 {
     MYSQL* conectar;
@@ -325,7 +327,8 @@ int main()
                                         cout << "<--- PRODUCTOS --->" << endl;
                                         cout << "1. CREAR NUEVO PRODUCTO" << endl;
                                         cout << "2. VER PRODUCTOS" << endl;
-                                        cout << "3. SALIR" << endl;
+                                        cout << "3. PRODUCTO POR PROVEEDOR" << endl;
+                                        cout << "4. SALIR" << endl;
                                         cout << "SELECCIONAR: ";
                                         cin >> option;
                                         system("cls");
@@ -338,6 +341,10 @@ int main()
                                             system("pause");
                                             break;
                                         case 3:
+                                            MOSTRAR_PRODUCTOS_BY_PROVEEDOR(conectar);
+                                            system("pause");
+                                            break;
+                                        case 4:
                                             running = 1;
                                             break;
                                         }
@@ -1011,6 +1018,7 @@ void Datos_Personal::MOSTRAR(MYSQL* conectar) {
     }
     string trabajo = "administrador";
     cout << "-------TRABAJO-------" << endl;
+    //OSCAR 2 TABLAS: DATO_PERSONAL, COCINERO.
     consulta1 = "SELECT * FROM dto_prsnal INNER JOIN cocinero on dto_prsnal.ID_DTO_PRSNAL=cocinero.DTO_PRSNAL_ID_DTO_PRSNAL WHERE dto_prsnal.ID_DTO_PRSNAL = '" + id_datos + "'";
     c = consulta1.c_str();
     q_estado = mysql_query(conectar, c);
@@ -1057,6 +1065,7 @@ void Datos_Personal::MOSTRAR(MYSQL* conectar) {
 
 
     }
+    //OSCAR 3 TABLAS: DATO PERSONAL, MESERO, MESERO_HAS_TURNO, TURNO.
     consulta4 = "SELECT * FROM dto_prsnal INNER JOIN mesero on dto_prsnal.ID_DTO_PRSNAL=mesero.DTO_PRSNAL_ID_DTO_PRSNAL INNER JOIN mesero_has_turno on mesero.ID_MESERO = mesero_has_turno.MESERO_ID_MESERO INNER JOIN turno on mesero_has_turno.TURNO_ID_TURNO = turno.ID_TURNO WHERE dto_prsnal.ID_DTO_PRSNAL = '" + id_datos + "'";
     c = consulta4.c_str();
     q_estado = mysql_query(conectar, c);
@@ -1076,6 +1085,7 @@ void Datos_Personal::MOSTRAR(MYSQL* conectar) {
     }
 
 }
+//OSCAR
 
 Administrador::Administrador(string DTO_PRSNAL_, string SUCURSAL_) {
     DTO_PRSNAL = DTO_PRSNAL_;
@@ -1501,7 +1511,7 @@ void Comprobante::MOSTRAR(MYSQL* conectar, string& id_sucursal) {
         }
     }
 
-
+    //WILLIAM 3 TABLAS: PRODUCTO, PRODUCTO_HAS_DETALLE_PEDIDO, COMPROBANTE.
     consulta = " select * , sum(cantidad * PRECIO) from default_schema.producto_has_dtlle_pdido as x inner join(SELECT comprobante.fecha, comprobante.nombre, comprobante.direccion, comprobante.FRMA_D_PGO, comprobante.PEDIDO_ID_PEDIDO, ID_DTLLE_PDIDO, ID_COMPROBANTE FROM default_schema.comprobante inner join default_schema.dtlle_pdido on comprobante.pedido_id_pedido = dtlle_pdido.pedido_id_pedido where sucursal_ruc = '" + id_sucursal + "') as y on x.dtlle_pdido_id_dtlle_pdido = y.id_dtlle_pdido inner join default_schema.producto as q on PRODUCTO_ID_PRODUCTO = q.ID_PRODUCTO where pedido_id_pedido in(select comprobante.PEDIDO_ID_PEDIDO from default_schema.comprobante) group by(comprobante.id_comprobante)";
     c = consulta.c_str();
     q_estado = mysql_query(conectar, c);
@@ -1518,8 +1528,9 @@ void Comprobante::MOSTRAR(MYSQL* conectar, string& id_sucursal) {
         }
     }
 }
+//WILLIAM
 
-void Pedido::MOSTRAR(MYSQL* conectar) {
+void Pedido::MOSTRAR(MYSQL* conectar) { 
     MYSQL_ROW fila;
     MYSQL_ROW fila2;
     MYSQL_RES* resultado;
@@ -1538,6 +1549,7 @@ void Pedido::MOSTRAR(MYSQL* conectar) {
             cout << "------------------------------" << endl;
             id_ped = fila[0];
             cout << "ID PEDIDO: " << fila[0] << endl;
+            //WILLIAM 2 TABLAS: PRODUCTO_HAS_DETALLE_PEDIDO, DETALLE_PEDIDO.
             consulta2 = "SELECT * FROM default_schema.dtlle_pdido inner join default_schema.producto_has_dtlle_pdido on dtlle_pdido.ID_DTLLE_PDIDO = producto_has_dtlle_pdido.dtlle_pdido_id_dtlle_pdido inner join default_schema.producto on PRODUCTO_ID_PRODUCTO = ID_PRODUCTO where PEDIDO_ID_PEDIDO = '" + id_ped + "'";
             c2 = consulta2.c_str();
             q_estado = mysql_query(conectar, c2);
@@ -1557,6 +1569,7 @@ void Pedido::MOSTRAR(MYSQL* conectar) {
     }
 
 }
+//WILLIAM
 
 void INGRESAR_PEDIDO(MYSQL* conectar, Pedido& P) {
     MYSQL_ROW fila;
@@ -1915,4 +1928,43 @@ void Mesero_Turno::CREAR(MYSQL* conectar) {
     else {
         cout << "Ingreso Fallido..." << endl;
     }
+}
+
+void MOSTRAR_PRODUCTOS_BY_PROVEEDOR(MYSQL* conectar) {
+    MYSQL_ROW fila;
+    MYSQL_ROW fila2;
+    MYSQL_RES* resultado;
+    MYSQL_RES* resultado2;
+    string id_provee;
+    string consulta;
+    string consulta2;
+    const char* c;
+    const char* c2;
+    consulta = "SELECT distinct ID_PROVEEDOR FROM default_schema.producto as x inner join default_schema.proveedor as y on x.PROVEEDOR_ID_PROVEEDOR = y.id_proveedor";
+    c = consulta.c_str();
+    q_estado = mysql_query(conectar, c);
+    if (!q_estado) {
+        resultado = mysql_store_result(conectar);
+        while (fila = mysql_fetch_row(resultado)) {
+            cout << "------------------------------" << endl;
+            id_provee = fila[0];
+            cout << "ID PROVEEDOR: " << fila[0] << endl;
+            cout << endl;
+            cout << endl;
+            consulta2 = "SELECT * FROM default_schema.producto as x inner join default_schema.proveedor as y on x.PROVEEDOR_ID_PROVEEDOR = y.id_proveedor where id_proveedor = '" + id_provee + "'";
+            c2 = consulta2.c_str();
+            q_estado = mysql_query(conectar, c2);
+            if (!q_estado) {
+                resultado2 = mysql_store_result(conectar);
+                while (fila2 = mysql_fetch_row(resultado2)) {
+                    cout << "PRODUCTO: " << fila2[2] << endl;
+                    cout << "PRECIO: " << "s/." << fila2[1] << endl;
+                    cout << endl;
+                }
+            }
+
+
+        }
+    }
+
 }
